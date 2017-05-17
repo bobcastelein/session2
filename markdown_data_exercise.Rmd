@@ -75,14 +75,19 @@ topexport
 Now we have two data frames, one with the export data for the Netherlands' 10 most important banana export partners, and one with the import data for the Netherlands' 10 most important banana import partners.
 
 
-## Visualization
+## Visualization and discussion
+
+Below we can create two plots: one of the volume imported from the 10 most important import partners over the period 2000-2013, and one of the volume exported to the 10 most important export partners over the period 2000-2013. 
 
 ```{r}
 library(ggplot2)
-ggplot(topimport, aes(x = Year, y = imval, colour = factor(Partner.Countries))) + geom_point() + geom_line()
+ggplot(topimport, aes(x = Year, y = imval, colour = factor(Partner.Countries))) + geom_point() + geom_line() + labs(x = "Year", y = "Value of banana imports ($1000)", colour = "Import origins", title = "Banana imports from 10 major import partners, 2000-2013") + scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000), limits = c(0, 100000))
 ```
 
-```{r}
-ggplot(topexport, aes(x = Year, y = exval, colour = factor(Partner.Countries))) + geom_point() + geom_line()
+The first thing we notice is that for a long time, Belgium was the Netherlands' primary source of bananas. As bananas don't grow in Belgium, the obvious conclusion is that bananas were imported in Belgium re-exported to the Netherlands. Over time this volume has shrunk, and the the value of banana imports from major banana producers such as Colombia, Ecuador, Peru, and Costa Rica have increased. The world market for fruits is dominated by a few very large players (Chiquita, Bonita, Fyffes, Dole etc.), who have a large extent of control over their global supply chains, from farmer to supermarket. The increase in flows from banana-producing countries, and a decrease in the flow from Belgium (traditionally a main player on transatlantic routes through the Port of Antwerp), is an indication that the Dutch transportation sector has been successful in attracting direct cargo flows from the major banana traders. The rise of Germany as an important source of banana imports reflects the competition between Northern European ports for largely the same hinterlands. 
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(topexport, aes(x = Year, y = exval, colour = factor(Partner.Countries))) + geom_point() + geom_line() + labs(x = "Year", y = "Value of banana exports ($1000)", colour = "Export destinations", title = "Banana exports to 10 major export partners, 2000-2013") + scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000), limits = c(0, 100000))
 ```
 
+As the climate in the Netherlands does not suit itself to grow bananas, the bananas imported are either consumed domestically or re-exported. The main export market nowadays (at least as of 2013) is Germany, with other countries such as the United Kingdom, Poland, France and Belgium making up smaller markets. 
