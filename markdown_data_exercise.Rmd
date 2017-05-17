@@ -9,9 +9,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## The Netherlands' banana trade
+# The Netherlands' banana trade
+
+
+## Introduction
 
 One of the main cargoes shipped in reefer containers is bananas. They make up some 20% of all conditioned cargo, and impose some of the most stringent requirements on energy security, due to the narrow temperature bandwidth (2 degrees at most) at which the product should be preserved.
+
+
+## Collecting the data
 
 In this exercise, I will work with data of the Netherlands' import and export flows of bananas. From the FAO statistics website (http://www.fao.org/faostat/en/#home) I pull the trade matrix data for the Netherlands as the reporting country, selecting all partner countries, and bananas as the item, for the years 2000-2013. This raw data file is available for download at my github page.
 
@@ -21,6 +27,9 @@ First I download the data and store it in a variable called 'bananas'.
 bananas <- read.csv(file = "https://raw.githubusercontent.com/bobcastelein/session2/master/nlbananas2000-2013.csv")
 head(bananas)
 ```
+
+
+## Data cleaning
 
 Right now, the data looks a bit messy, with several variables we don't need. We are interested in the partner country (the reporting country is always the Netherlands), the element (export quantity/value, and import quantity/value - although this distinction is not as useful when considering one commodity only), the year, and the value. To work with these variables alone, I use the dplyr package to select the appropriate variables.
 
@@ -46,19 +55,34 @@ invisible(bananasw <- bananasw %>% rename(exquant = `Export Quantity_tonnes`, ex
 head(bananasw)
 ```
 
-To compile a list of the most important banana import and export markets for the Netherlands, I create two new tibbles, listing the partner countries and their average annual banana flow.
+
+Subsequently I rank the countries according to mean import and export value over the period 2000-2013, and select the 10 most important import and export partners.
 
 ```{r}
-export_to <- bananasw %>% group_by(Partner.Countries) %>% summarise(mean(exval))
-import_from <- bananasw %>% group_by(Partner.Countries) %>% summarise(mean(imval))
+head(bananasw %>% group_by(Partner.Countries) %>% summarize(mean(imval)) %>% arrange(desc(`mean(imval)`)), 10)
+head(bananasw %>% group_by(Partner.Countries) %>% summarize(mean(exval)) %>% arrange(desc(`mean(exval)`)), 10)
+```
+
+For the banana trade between the Netherlands and these countries I want to plot the developments in import and export volumes, expressed in total import/export value. First I select only those rows that correspond with the countries in these top 10s.
+
+```{r}
+topexport <- bananasw %>% group_by(Partner.Countries) %>% mutate(mean(exval)) %>% filter(mean(exval) > 2182)
+topimport <- bananasw %>% group_by(Partner.Countries) %>% mutate(mean(imval)) %>% filter(mean(imval) > 2504)
+topimport
+topexport
+```
+
+Now we have two data frames, one with the export data for the Netherlands' 10 most important banana export partners, and one with the import data for the Netherlands' 10 most important banana import partners.
+
+
+## Visualization
+
+```{r}
+library(ggplot2)
+ggplot(topimport, aes(x = Year, y = imval, colour = factor(Partner.Countries))) + geom_point() + geom_line()
 ```
 
 ```{r}
-export_to %>% arrange(desc(`mean(exval)`))
-import_from %>% arrange(desc(`mean(imval)`))
+ggplot(topexport, aes(x = Year, y = exval, colour = factor(Partner.Countries))) + geom_point() + geom_line()
 ```
-
-
-
-
 
